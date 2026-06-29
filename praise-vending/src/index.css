@@ -44,19 +44,46 @@
   box-sizing: border-box;
 }
 
+@font-face {
+    font-family: 'OngleipParkDahyeon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_ParkDaHyun.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
 body {
-  font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+  font-family: 'OngleipParkDahyeon', 'Outfit', 'Noto Sans KR', sans-serif;
   color: var(--color-text-main);
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  /* Spring Garden Background */
-  background: 
-    radial-gradient(circle at 10% 20%, rgba(255, 230, 230, 0.4) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(200, 255, 200, 0.4) 0%, transparent 20%),
-    radial-gradient(circle at 50% 50%, rgba(255, 250, 200, 0.3) 0%, transparent 50%),
-    linear-gradient(to bottom, #d4f0ff 0%, #aee5be 100%);
-  background-attachment: fixed;
+  background-color: #f0f4f8;
+  font-size: 1.1rem;
+}
+
+/* Monet Style Animated Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: -20%; left: -20%;
+  width: 140%; height: 140%;
+  z-index: -1;
+  background-color: #f7e6a1; /* Light sunshine yellow base */
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 180, 200, 0.8) 0%, transparent 40%), /* Soft pink */
+    radial-gradient(circle at 80% 70%, rgba(160, 220, 180, 0.8) 0%, transparent 50%), /* Soft green */
+    radial-gradient(circle at 30% 80%, rgba(150, 200, 255, 0.7) 0%, transparent 50%), /* Soft blue */
+    radial-gradient(circle at 70% 20%, rgba(255, 220, 150, 0.9) 0%, transparent 45%), /* Warm yellow */
+    radial-gradient(circle at 50% 50%, rgba(220, 180, 255, 0.6) 0%, transparent 60%); /* Soft purple */
+  filter: blur(25px);
+  animation: monet-sway 20s ease-in-out infinite alternate;
+}
+
+@keyframes monet-sway {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-3%, 4%) scale(1.05); }
+  66% { transform: translate(4%, -2%) scale(1.02); }
+  100% { transform: translate(-2%, -4%) scale(1.04); }
 }
 
 /* Base Styles */
@@ -133,7 +160,7 @@ button {
 
 /* Glassmorphism */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -199,20 +226,18 @@ button {
 }
 
 /* Shelves inside display */
-.vending-shelf {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-  gap: 15px;
-  padding: 0 15px 5px 15px;
-  height: 110px;
+.vending-shelf-container {
   border-bottom: 8px solid #cbd5e1;
   box-shadow: 0 5px 5px rgba(0,0,0,0.1);
   position: relative;
+  width: 100%;
+  height: 110px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden; /* Hide cans sliding off */
 }
 
-/* Shelf price tags */
-.vending-shelf::after {
+.vending-shelf-container::after {
   content: '';
   position: absolute;
   bottom: -15px;
@@ -220,18 +245,29 @@ button {
   width: 100%;
   height: 15px;
   background: repeating-linear-gradient(90deg, #333 0, #333 30px, #222 30px, #222 35px);
+  z-index: 10;
+}
+
+.vending-shelf {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 15px;
+  padding: 0 15px 5px 15px;
+  height: 100%;
+  position: relative;
 }
 
 /* Realistic Fat Can (뚱캔) */
 .fat-can {
-  width: 50px;
-  height: 85px;
-  border-radius: 5px;
+  width: 55px;
+  height: 90px;
+  border-radius: 6px;
   position: relative;
   box-shadow: 
-    inset -10px 0 15px rgba(0,0,0,0.3),
-    inset 5px 0 10px rgba(255,255,255,0.5),
-    2px 5px 5px rgba(0,0,0,0.3);
+    -3px 0 5px rgba(0,0,0,0.4) inset,
+    5px 0 8px rgba(255,255,255,0.6) inset,
+    2px 5px 5px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -241,24 +277,29 @@ button {
   cursor: pointer;
   z-index: 5;
   transition: transform 0.2s;
+  /* Add metallic gloss to background color in React via inline styles, but base gloss here */
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.6) 20%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0.3) 100%);
+  background-blend-mode: overlay;
 }
 
 .fat-can:hover {
   transform: scale(1.05) translateY(-5px);
 }
 
-/* Silver Top of the Can */
+/* Silver Top of the Can (Rim + Lid) */
 .fat-can::before {
   content: '';
   position: absolute;
-  top: -6px;
+  top: -4px;
   left: 0;
   width: 100%;
-  height: 12px;
-  background: linear-gradient(to bottom, #f1f5f9, #94a3b8);
+  height: 14px;
+  background: linear-gradient(to bottom, #e2e8f0, #94a3b8);
   border-radius: 50%;
   border: 1px solid #64748b;
-  box-shadow: inset 0 2px 3px rgba(255,255,255,0.8);
+  box-shadow: 
+    inset 0 4px 4px rgba(255,255,255,0.9),
+    inset 0 -2px 3px rgba(0,0,0,0.3);
   z-index: 2;
 }
 
@@ -266,23 +307,33 @@ button {
 .fat-can::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -3px;
   left: 2%;
   width: 96%;
-  height: 8px;
-  background: linear-gradient(to bottom, #94a3b8, #475569);
+  height: 10px;
+  background: linear-gradient(to bottom, #cbd5e1, #64748b);
   border-radius: 50%;
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.5);
   z-index: 0;
 }
 
 .can-label {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: bold;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1.2;
   z-index: 3;
-  padding: 0 2px;
+  padding: 0 4px;
   word-break: keep-all;
+  font-family: 'OngleipParkDahyeon', sans-serif;
+  letter-spacing: 0.5px;
+  
+  /* Truncate text with ellipsis after 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Lower Section Controls */
@@ -291,6 +342,7 @@ button {
   justify-content: space-between;
   margin-top: 40px;
   padding: 0 20px;
+  opacity: 0.9;
 }
 
 /* Branding/Advertisement Area */
@@ -381,10 +433,195 @@ button {
 }
 
 .output-flap {
-  position: absolute;
   top: 0; left: 0; right: 0; height: 100%;
   background: rgba(255,255,255,0.05);
   border-bottom: 2px solid rgba(255,255,255,0.2);
   transform-origin: top;
   transform: rotateX(10deg);
+}
+
+/* Conveyor Belt / Seamless Marquee */
+.marquee-container {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  padding-bottom: 5px;
+  position: relative;
+  z-index: 5;
+}
+
+.marquee-content {
+  display: flex;
+  flex-shrink: 0;
+  gap: 15px;
+  padding-right: 15px;
+  min-width: 100%;
+  animation: marquee-scroll 15s linear infinite;
+  align-items: flex-end;
+}
+
+.marquee-container:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+.marquee-container.reverse .marquee-content {
+  animation-direction: reverse;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.marquee-content.single-run {
+  min-width: unset;
+  width: max-content;
+  animation: marquee-scroll-single 20s linear infinite;
+  justify-content: flex-start;
+  gap: 15px;
+}
+
+.marquee-container.reverse .marquee-content.single-run {
+  justify-content: flex-end;
+}
+
+@keyframes marquee-scroll-single {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100vw); }
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6); z-index: 9999;
+  display: flex; justify-content: center; align-items: center;
+}
+
+/* CAN THEMES (Based on photos) */
+.theme-default { background: #FF6B6B; }
+
+/* Coca-Cola style (Red with wave) */
+.theme-coke {
+  background: radial-gradient(circle at 50% 50%, #e60000 0%, #cc0000 70%, #990000 100%);
+  border: 1px solid #990000;
+}
+.theme-coke .can-deco {
+  /* add a white wave over the can */
+  content: ''; position: absolute; top: 40%; left: -10%; width: 120%; height: 20px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  transform: rotate(-15deg);
+  z-index: 1; pointer-events: none;
+}
+
+/* Pepsi style (Blue with red/white circle) */
+.theme-pepsi {
+  background: radial-gradient(circle at 50% 50%, #004b93 0%, #003366 100%);
+}
+.theme-pepsi .can-deco {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #e60000 45%, #ffffff 45%, #ffffff 55%, #004b93 55%);
+  z-index: 1; pointer-events: none;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* Sprite / Chilsung style (Green with yellow/white stars/dots) */
+.theme-sprite {
+  background: radial-gradient(circle at 50% 50%, #00a859 0%, #007a3e 100%);
+}
+.theme-sprite .can-deco {
+  content: '★'; position: absolute; top: 20%; left: 10%; color: rgba(255,255,255,0.8); font-size: 1.5rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Fanta style (Orange) */
+.theme-fanta {
+  background: radial-gradient(circle at 50% 50%, #ff8c00 0%, #e65c00 100%);
+}
+.theme-fanta .can-deco {
+  content: '🍃'; position: absolute; top: 15%; right: 10%; font-size: 1rem;
+  z-index: 1; pointer-events: none; text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Let's Be style (Blue/Brown Coffee) */
+.theme-coffee {
+  background: linear-gradient(to bottom, #0056b3 50%, #8b4513 50%);
+}
+.theme-coffee .can-deco {
+  content: '☕'; position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Grape style */
+.theme-grape {
+  background: radial-gradient(circle at 50% 50%, #8a2be2 0%, #4b0082 100%);
+}
+.theme-grape .can-deco {
+  content: '🍇'; position: absolute; top: 15%; left: 50%; transform: translateX(-50%); font-size: 1.5rem;
+  z-index: 1; pointer-events: none; text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+/* Lemon style */
+.theme-lemon {
+  background: repeating-linear-gradient(45deg, #fff200, #fff200 10px, #ffda00 10px, #ffda00 20px);
+}
+.theme-lemon .can-deco {
+  content: '🍋'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Melon style */
+.theme-melon {
+  background: linear-gradient(135deg, #ccff99 0%, #99ff33 100%);
+}
+.theme-melon .can-deco {
+  content: '🍈'; position: absolute; bottom: 10%; right: 10%; font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Water style */
+.theme-water {
+  background: linear-gradient(to bottom, #e0f7fa 0%, #80deea 100%);
+}
+.theme-water .can-deco {
+  content: '💧'; position: absolute; top: 30%; left: 50%; transform: translateX(-50%); font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Choco style */
+.theme-choco {
+  background: repeating-linear-gradient(0deg, #3e2723, #3e2723 15px, #4e342e 15px, #4e342e 30px);
+}
+.theme-choco .can-deco {
+  content: '🍫'; position: absolute; top: 50%; left: 10%; transform: translateY(-50%); font-size: 1rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Milk style */
+.theme-milk {
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e3f2fd 100%);
+}
+.theme-milk .can-deco {
+  content: '🥛'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Strawberry style */
+.theme-strawberry {
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 2px, transparent 2px), #ff4081;
+  background-size: 15px 15px;
+}
+.theme-strawberry .can-deco {
+  content: '🍓'; position: absolute; bottom: 15%; right: 15%; font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
+}
+
+/* Banana style */
+.theme-banana {
+  background: linear-gradient(90deg, #fff59d 0%, #fbc02d 100%);
+}
+.theme-banana .can-deco {
+  content: '🍌'; position: absolute; top: 15%; left: 10%; font-size: 1.2rem;
+  z-index: 1; pointer-events: none;
 }

@@ -7,17 +7,20 @@ import { db, auth } from '../firebase';
 
 export default function Write() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ to: '', behavior: '', message: '', from: '' });
+  const [formData, setFormData] = useState({ title: '', to: '', behavior: '', message: '', from: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      const studentSession = JSON.parse(localStorage.getItem('studentSession'));
       if (currentUser) {
         setUser(currentUser);
-        // 이메일에서 닉네임 추출 (예: nickname@school.com -> nickname)
         const nickname = currentUser.email ? currentUser.email.split('@')[0] : '익명';
         setFormData(prev => ({ ...prev, from: nickname }));
+      } else if (studentSession) {
+        setUser(studentSession);
+        setFormData(prev => ({ ...prev, from: studentSession.name }));
       } else {
         alert('로그인이 필요합니다!');
         navigate('/login');
@@ -32,7 +35,11 @@ export default function Write() {
     setIsSubmitting(true);
     
     try {
+      const themes = ['coke', 'pepsi', 'sprite', 'fanta', 'coffee', 'grape', 'lemon', 'melon', 'water', 'choco', 'milk', 'strawberry', 'banana'];
+      const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+      
       await addDoc(collection(db, 'praises'), {
+        title: formData.title,
         to: formData.to,
         from: formData.from || '익명',
         behavior: formData.behavior,
@@ -40,7 +47,7 @@ export default function Write() {
         status: 'pending',
         likes: 0,
         createdAt: serverTimestamp(),
-        color: ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A8E6CF', '#FFD3B6'][Math.floor(Math.random() * 5)],
+        theme: randomTheme,
         uid: user?.uid
       });
       alert('미담이 성공적으로 제출되었습니다! 선생님의 승인을 기다려주세요.');
@@ -79,6 +86,21 @@ export default function Write() {
               style={{
                 width: '100%', padding: '12px', borderRadius: 'var(--radius-sm)',
                 border: '1px solid #ddd', background: '#f5f5f5', outline: 'none', fontSize: '1rem'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>글 제목</label>
+            <input 
+              type="text" 
+              placeholder="예: 친절한 배려에 감사해요!"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              style={{
+                width: '100%', padding: '12px', borderRadius: 'var(--radius-sm)',
+                border: '1px solid #ddd', outline: 'none', fontSize: '1rem'
               }}
             />
           </div>

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,27 +14,39 @@ export default function Login() {
   const handleStudentLogin = async (e) => {
     e.preventDefault();
     if (!nickname || !password) return alert('아이디(이름)과 비밀번호를 입력해주세요.');
-    // 비밀번호 숫자 체크 (선택사항, 하지만 안내를 위해)
-    if (!/^\d+$/.test(password)) return alert('비밀번호는 숫자로만 입력해주세요.');
 
-    const email = `${nickname}@student.school.com`;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/home');
-    } catch (error) {
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          alert(`'${nickname}' 님, 환영합니다! 계정이 생성되었습니다.`);
-          navigate('/home');
-        } catch (createError) {
-          console.error(createError);
-          alert('가입 중 오류가 발생했습니다.');
-        }
-      } else {
-        console.error(error);
-        alert('비밀번호가 틀렸거나 오류가 발생했습니다.');
+      // Firebase auth에서 선생님 로그아웃 처리 (학생으로 로그인 시 세션 충돌 방지)
+      await auth.signOut();
+
+      // Firestore students 컬렉션에서 확인
+      const q = query(collection(db, 'students'), where('name', '==', nickname));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        return alert('등록되지 않은 이름입니다. 선생님께 확인해주세요.');
       }
+
+      const studentDoc = querySnapshot.docs[0];
+      const studentData = studentDoc.data();
+
+      if (studentData.password !== password) {
+        return alert('비밀번호가 틀렸습니다.');
+      }
+
+      // 로컬 스토리지에 세션 저장 (Firebase Auth 대신)
+      localStorage.setItem('studentSession', JSON.stringify({
+        uid: studentDoc.id,
+        name: studentData.name,
+        role: 'student'
+      }));
+      
+      alert(`'${nickname}' 님, 환영합니다!`);
+      navigate('/home');
+      
+    } catch (error) {
+      console.error(error);
+      alert('로그인 중 오류가 발생했습니다.');
     }
   };
 
